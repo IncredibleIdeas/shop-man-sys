@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Eunice Mart · Retail & Wholesale Hub</title>
+  <!-- Tailwind CSS + extra responsive enhancements -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome 6 (free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Google Fonts: Inter + fallback -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #fef9e8 0%, #eef4fa 100%);
+      min-height: 100vh;
+    }
+    /* modern glassmorphic cards + responsive rounded corners */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 245, 220, 0.6);
+      border-radius: 1.75rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.08);
+    }
+    .glass-card:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 20px 28px -12px rgba(0, 0, 0, 0.12);
+    }
+    .nav-pill {
+      transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      white-space: nowrap;
+    }
+    .nav-pill.active {
+      background: #f97316;
+      color: white;
+      box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+    }
+    /* custom scrollbar for modern look */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #ffe6cc;
+      border-radius: 20px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #f59e0b;
+      border-radius: 20px;
+    }
+    /* bottom mobile nav adjustments */
+    @media (max-width: 640px) {
+      .nav-pill {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.9rem;
+      }
+      .stat-card {
+        padding: 1rem;
+      }
+    }
+    /* animated ripple effect on buttons */
+    .btn-ripple {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-ripple:after {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      background-image: radial-gradient(circle, #fff 10%, transparent 10%);
+      background-repeat: no-repeat;
+      background-position: 50%;
+      transform: scale(10);
+      opacity: 0;
+      transition: transform 0.4s, opacity 0.6s;
+    }
+    .btn-ripple:active:after {
+      transform: scale(0);
+      opacity: 0.4;
+      transition: 0s;
+    }
+    /* table responsive wrap */
+    .responsive-table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  </style>
+</head>
+<body class="antialiased">
+
+<div id="app-root" class="max-w-7xl mx-auto px-4 sm:px-5 md:px-7 py-5 md:py-7"></div>
+
+<footer class="max-w-7xl mx-auto px-5 pb-6 text-center text-xs text-gray-500 border-t border-amber-200/40 pt-6 mt-3">
+  <div class="flex flex-wrap justify-center gap-4 text-[11px] sm:text-xs">
+    <span><i class="fas fa-store text-amber-500 mr-1"></i> Eunice Mart</span>
+    <span>© 2026 — retail & wholesale ecosystem</span>
+    <span><i class="fas fa-leaf text-emerald-500"></i> sustainable sourcing</span>
+  </div>
+</footer>
+
+<script>
+  (function() {
+    // ---------- mock state & enhanced demo data ----------
+    let currentUser = null;   // null = signed out
+    
+    // enhanced demo products with real stock
+    let productsDB = [
+      { id: 1, name: "Voltic Natural 1.5L", category: "mineral water", unit: "bottle", stockQty: 340, price: "GH₵ 4.50", wholesalePrice: "GH₵ 38/crate", type: "retail", icon: "fa-droplet" },
+      { id: 2, name: "Coca-Cola 2L", category: "soda", unit: "bottle", stockQty: 125, price: "GH₵ 12.00", wholesalePrice: "GH₵ 110/crate", type: "both", icon: "fa-glass-cheers" },
+      { id: 3, name: "Special Ice Sachet", category: "mineral water", unit: "sachet (40pcs)", stockQty: 580, price: "GH₵ 12.00", wholesalePrice: "GH₵ 105/carton", type: "retail", icon: "fa-ice-cream" },
+      { id: 4, name: "Pepsi Can Crate", category: "wholesale", unit: "24 cans", stockQty: 48, price: "GH₵ 110.00", wholesalePrice: "GH₵ 102/crate", type: "wholesale", icon: "fa-cubes" },
+      { id: 5, name: "Schweppes Mix Pack", category: "soda", unit: "18 bottles", stockQty: 76, price: "GH₵ 72.00", wholesalePrice: "GH₵ 68", type: "both", icon: "fa-flask" },
+      { id: 6, name: "Everest 5L Jug", category: "water dispenser", unit: "jug", stockQty: 42, price: "GH₵ 18.00", wholesalePrice: "GH₵ 95/6pcs", type: "retail", icon: "fa-jug-detergent" }
+    ];
+    
+    let ordersList = [
+      { id: "EM-2403", customer: "Nana Akua Stores", type: "wholesale", amount: "GH₵ 2,400", status: "paid", date: "2026-03-22" },
+      { id: "EM-2402", customer: "Osu Spot Retail", type: "retail", amount: "GH₵ 340", status: "pending", date: "2026-03-21" },
+      { id: "EM-2401", customer: "Madina Depot", type: "wholesale", amount: "GH₵ 6,200", status: "shipped", date: "2026-03-20" },
+      { id: "EM-2400", customer: "Aburi Wholesale Hub", type: "wholesale", amount: "GH₵ 4,850", status: "paid", date: "2026-03-19" }
+    ];
+    
+    let customersList = [
+      { name: "Nana Akua Stores", segment: "wholesale", lastOrder: "2 days ago", credit: "GH₵ 0" },
+      { name: "Osu Spot", segment: "retail", lastOrder: "yesterday", credit: "GH₵ 120" },
+      { name: "Madina Depot", segment: "wholesale", lastOrder: "3 days ago", credit: "GH₵ 2,300" },
+      { name: "Spintex Mart", segment: "retail", lastOrder: "5 days ago", credit: "GH₵ 0" },
+      { name: "Tema Wholesale Ltd", segment: "wholesale", lastOrder: "1 week ago", credit: "GH₵ 4,200" }
+    ];
+    
+    // navigation map
+    const pageComponents = {
+      signin: signInPage,
+      signup: signUpPage,
+      dashboard: dashboardPage,
+      products: productsPage,
+      orders: ordersPage,
+      customers: customersPage,
+      reports: reportsPage,
+      settings: settingsPage,
+      addProduct: addProductPage
+    };
+    
+    let currentRoute = 'signin';
+    
+    function navigate(route) {
+      if (!pageComponents[route]) route = 'dashboard';
+      if (!currentUser && route !== 'signin' && route !== 'signup') route = 'signin';
+      if (currentUser && (route === 'signin' || route === 'signup')) route = 'dashboard';
+      currentRoute = route;
+      renderApp();
+    }
+    
+    function login(email, name) {
+      currentUser = { email: email || "demo@eunice.com", name: name || "Eunice Amoah", role: "manager" };
+      navigate('dashboard');
+    }
+    function logout() { currentUser = null; navigate('signin'); }
+    
+    // ------ helper: responsive header (mobile drawer) ------
+    function renderTopNav() {
+      if (!currentUser) return '';
+      const isActive = (route) => currentRoute === route ? 'active' : '';
+      return `
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8 sticky top-0 z-20 bg-white/70 backdrop-blur-md rounded-2xl p-3 shadow-sm">
+          <div class="flex items-center gap-3">
+            <i class="fas fa-hand-holding-droplet text-3xl text-amber-500 drop-shadow-sm"></i>
+            <div>
+              <h1 class="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-teal-700 to-amber-700 bg-clip-text text-transparent">Eunice Mart</h1>
+              <span class="text-[11px] sm:text-xs text-gray-500 font-medium"><i class="fas fa-chart-line text-teal-500 mr-1"></i> retail + wholesale hub</span>
+            </div>
+          </div>
+          <!-- desktop + mobile horizontal scroll navigation -->
+          <div class="flex flex-nowrap overflow-x-auto gap-1.5 pb-1 scrollbar-thin sm:justify-end hide-scrollbar" style="-webkit-overflow-scrolling: touch;">
+            <button onclick="window.navigate('dashboard')" class="nav-pill px-3 sm:px-5 py-2 rounded-full text-sm font-medium ${isActive('dashboard')} bg-gray-100/80 hover:bg-orange-100 transition"><i class="fas fa-chart-pie mr-1"></i><span class="hidden xs:inline">Dashboard</span><span class="inline xs:hidden">Home</span></button>
+            <button onclick="window.navigate('products')" class="nav-pill px-3 sm:px-5 py-2 rounded-full text-sm font-medium ${isActive('products')} bg-gray-100/80"><i class="fas fa-boxes mr-1"></i>Products</button>
+            <button onclick="window.navigate('orders')" class="nav-pill px-3 sm:px-5 py-2 rounded-full text-sm font-medium ${isActive('orders')} bg-gray-100/80"><i class="fas fa-truck mr-1"></i>Orders</button>
+            <button onclick="window.navigate('customers')" class="nav-pill px-3 sm:px-5 py-2 rounded-full text-sm font-medium ${isActive('customers')} bg-gray-100/80"><i class="fas fa-users mr-1"></i>Customers</button>
+            <button onclick="window.navigate('reports')" class="nav-pill px-3 sm:px-5 py-2 rounded-full text-sm font-medium ${isActive('reports')} bg-gray-100/80"><i class="fas fa-chart-simple mr-1"></i>Reports</button>
+            <!-- user dropdown -->
+            <div class="relative group ml-1">
+              <button class="flex items-center gap-1.5 bg-white/90 border border-amber-200 rounded-full pl-3 pr-2 py-1.5 shadow-sm">
+                <i class="fas fa-user-circle text-teal-600 text-xl"></i>
+                <span class="text-sm font-medium max-w-[100px] truncate">${currentUser.name}</span>
+                <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+              </button>
+              <div class="absolute right-0 mt-2 w-44 bg-white rounded-2xl shadow-xl border border-amber-100 hidden group-hover:block z-30">
+                <button onclick="window.navigate('settings')" class="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-amber-50 rounded-t-2xl"><i class="fas fa-sliders-h text-sm"></i>Settings</button>
+                <button onclick="window.logout()" class="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-amber-50 rounded-b-2xl text-rose-600"><i class="fas fa-sign-out-alt"></i>Logout</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    // ----- AUTH PAGES with better responsive design -----
+    function signInPage() {
+      return `
+        <div class="min-h-[85vh] flex items-center justify-center py-8">
+          <div class="glass-card w-full max-w-md p-6 sm:p-8 mx-3">
+            <div class="text-center mb-6">
+              <i class="fas fa-leaf text-5xl text-emerald-500 drop-shadow"></i>
+              <h2 class="text-3xl font-extrabold mt-3 bg-gradient-to-r from-teal-800 to-amber-600 bg-clip-text text-transparent">Eunice Mart</h2>
+              <p class="text-gray-500 text-sm">retail & wholesale sign in</p>
+            </div>
+            <form onsubmit="event.preventDefault(); window.login(document.getElementById('loginEmail').value, 'Eunice Manager')">
+              <div class="mb-4">
+                <label class="block text-sm font-medium mb-1"><i class="fas fa-envelope text-amber-500 w-5"></i> Email</label>
+                <input type="email" id="loginEmail" value="wholesale@eunice.com" class="w-full p-3 border border-amber-200 rounded-2xl bg-white/80 focus:ring-2 focus:ring-teal-300 outline-none">
+              </div>
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1"><i class="fas fa-lock text-amber-500"></i> Password</label>
+                <input type="password" value="demo123" class="w-full p-3 border border-amber-200 rounded-2xl bg-white/80">
+              </div>
+              <button type="submit" class="w-full py-3 rounded-2xl bg-gradient-to-r from-teal-500 to-amber-500 text-white font-bold shadow-md transition hover:scale-[1.01]">Access Dashboard <i class="fas fa-arrow-right ml-2"></i></button>
+              <p class="text-center mt-5 text-gray-600 text-sm">New partner? <button type="button" onclick="window.navigate('signup')" class="text-teal-700 font-semibold underline">create account</button></p>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+    
+    function signUpPage() {
+      return `
+        <div class="min-h-[85vh] flex items-center justify-center py-8">
+          <div class="glass-card w-full max-w-md p-6 sm:p-8 mx-3">
+            <div class="text-center mb-5"><i class="fas fa-handshake text-4xl text-amber-500"></i><h2 class="text-2xl font-bold mt-2">Join Eunice Mart</h2><p class="text-xs text-gray-500">retailers & wholesalers welcome</p></div>
+            <form onsubmit="event.preventDefault(); window.login('new@eunice.com', 'New Merchant')">
+              <div class="grid gap-3"><input type="text" placeholder="Full name / Business name" class="p-3 border rounded-2xl"><input type="email" placeholder="Email address" class="p-3 border rounded-2xl"><input type="password" placeholder="Password" class="p-3 border rounded-2xl"><select class="p-3 border rounded-2xl bg-white"><option>Retailer</option><option>Wholesaler</option><option>Both</option></select></div>
+              <button class="w-full mt-5 py-3 bg-teal-600 text-white rounded-2xl font-bold">Create free account</button>
+              <p class="text-center mt-4 text-sm">Existing? <button onclick="window.navigate('signin')" class="text-amber-600 font-medium">Sign in</button></p>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+    
+    // ----- DASHBOARD (enhanced responsive metrics) -----
+    function dashboardPage() {
+      const totalSalesToday = "GH₵ 3,280";
+      const wholesaleOrders = 42;
+      const retailCustomers = 216;
+      const lowStockCount = productsDB.filter(p => p.stockQty < 50).length;
+      return `
+        <div>
+          <div class="flex flex-wrap justify-between items-center mb-5"><h2 class="text-2xl sm:text-3xl font-bold text-gray-800"><i class="fas fa-chart-line text-teal-500 mr-2"></i>Dashboard</h2><span class="bg-white/70 px-3 py-1.5 rounded-full text-xs shadow-sm"><i class="far fa-calendar-alt mr-1"></i>March 2026</span></div>
+          <div class="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="glass-card p-4 border-l-[6px] border-teal-400 flex justify-between items-center"><div><p class="text-gray-500 text-xs uppercase tracking-wide">Today's revenue</p><p class="text-2xl font-black text-teal-800">${totalSalesToday}</p><span class="text-emerald-600 text-xs">+22% vs yesterday</span></div><i class="fas fa-coins text-3xl text-teal-300"></i></div>
+            <div class="glass-card p-4 border-l-[6px] border-amber-400 flex justify-between"><div><p class="text-gray-500 text-xs">Wholesale orders</p><p class="text-2xl font-black">${wholesaleOrders}</p><span class="text-amber-600 text-xs">+8 new today</span></div><i class="fas fa-truck-fast text-3xl text-amber-300"></i></div>
+            <div class="glass-card p-4 border-l-[6px] border-rose-400"><div><p class="text-gray-500 text-xs">Active customers</p><p class="text-2xl font-black">${retailCustomers}</p><span class="text-rose-500 text-xs">+12 this week</span></div><i class="fas fa-user-plus text-3xl text-rose-300 float-right"></i></div>
+            <div class="glass-card p-4 border-l-[6px] border-lime-400"><div><p class="text-gray-500 text-xs">Low stock alerts</p><p class="text-2xl font-black text-lime-700">${lowStockCount}</p><span class="text-lime-600 text-xs">restock soon</span></div><i class="fas fa-exclamation-triangle text-3xl text-lime-400"></i></div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card p-5"><h3 class="font-semibold text-lg flex gap-2"><i class="fas fa-chart-simple text-orange-500"></i>Weekly performance (GH₵)</h3><div class="h-40 flex items-end gap-2 mt-2"><div class="bg-teal-400 w-1/7 h-20 rounded-t-xl text-center text-xs">M</div><div class="bg-teal-500 w-1/7 h-28 rounded-t-xl">T</div><div class="bg-amber-400 w-1/7 h-36 rounded-t-xl">W</div><div class="bg-amber-500 w-1/7 h-24 rounded-t-xl">T</div><div class="bg-rose-400 w-1/7 h-44 rounded-t-xl">F</div><div class="bg-rose-500 w-1/7 h-32 rounded-t-xl">S</div><div class="bg-emerald-400 w-1/7 h-20 rounded-t-xl">S</div></div><p class="text-xs text-gray-500 mt-3">Wholesale peaks mid-week</p></div>
+            <div class="glass-card p-5"><div class="flex justify-between"><h3 class="font-bold"><i class="fas fa-crown text-amber-500"></i> Top products</h3><button onclick="window.navigate('products')" class="text-teal-600 text-sm">view all →</button></div><ul class="mt-3 space-y-2">${productsDB.slice(0,3).map(p => `<li class="flex justify-between items-center border-b pb-2"><span><i class="fas ${p.icon} text-amber-600 w-6"></i> ${p.name}</span><span class="font-mono text-sm font-semibold">${p.price}</span></li>`).join('')}</ul></div>
+          </div>
+        </div>
+      `;
+    }
+    
+    // products grid (responsive)
+    function productsPage() {
+      return `
+        <div><div class="flex flex-wrap justify-between items-center gap-3 mb-6"><h2 class="text-2xl font-bold text-teal-800"><i class="fas fa-cubes mr-2"></i>Inventory</h2><button onclick="window.navigate('addProduct')" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-full text-sm shadow"><i class="fas fa-plus"></i> Add product</button></div>
+        <div class="flex flex-wrap gap-2 mb-5"><div class="flex-1 min-w-[180px]"><div class="bg-white/70 rounded-full flex items-center px-4 py-2"><i class="fas fa-search text-gray-400"></i><input type="search" placeholder="Search drinks, crates..." class="bg-transparent outline-none w-full ml-2 text-sm"></div></div><select class="bg-white rounded-full px-4 text-sm border-0 shadow-sm"><option>All categories</option><option>Mineral water</option><option>Soda</option><option>Wholesale</option></select></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">${productsDB.map(p => `<div class="glass-card p-4 transition-all"><div class="h-16 w-16 rounded-full bg-gradient-to-br from-amber-100 to-teal-100 flex items-center justify-center text-2xl mb-3"><i class="fas ${p.icon} text-teal-700"></i></div><h3 class="font-bold text-lg">${p.name}</h3><p class="text-xs text-gray-500">${p.category} · stock: ${p.stockQty} ${p.unit}</p><div class="flex justify-between items-center mt-3"><span class="font-black text-teal-700">${p.price}</span><button class="bg-amber-100 p-1.5 rounded-full text-xs"><i class="fas fa-edit text-amber-600"></i></button></div></div>`).join('')}</div></div>
+      `;
+    }
+    
+    function addProductPage() {
+      return `<div class="glass-card max-w-xl mx-auto p-6 my-8"><h2 class="text-2xl font-bold text-teal-800"><i class="fas fa-plus-circle"></i> New product listing</h2><form class="mt-5 space-y-4"><input class="w-full p-3 rounded-xl border" placeholder="Product name"><input class="w-full p-3 rounded-xl border" placeholder="Retail price (GH₵)"><input class="w-full p-3 rounded-xl border" placeholder="Stock quantity"><select class="w-full p-3 rounded-xl border"><option>Retail</option><option>Wholesale</option><option>Both</option></select><button class="w-full bg-teal-600 text-white py-3 rounded-xl font-bold">Save product</button></form></div>`;
+    }
+    
+    function ordersPage() {
+      return `<div><div class="flex justify-between items-center flex-wrap gap-2 mb-5"><h2 class="text-2xl font-bold text-amber-800"><i class="fas fa-clipboard-list mr-2"></i>Orders</h2><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs"><i class="fas fa-chart-line"></i> 15 new wholesale</span></div><div class="responsive-table-wrapper"><table class="min-w-full bg-white/70 rounded-2xl overflow-hidden shadow-sm"><thead class="bg-amber-100 text-amber-800"><tr><th class="p-3 text-left text-sm">Order ID</th><th class="p-3 text-left">Customer</th><th class="p-3 text-left">Type</th><th class="p-3 text-left">Amount</th><th class="p-3 text-left">Status</th></tr></thead><tbody>${ordersList.map(o => `<tr class="border-b hover:bg-amber-50/50"><td class="p-3 font-mono text-sm">${o.id}</td><td class="p-3">${o.customer}</td><td class="p-3"><span class="px-2 py-0.5 rounded-full text-xs ${o.type === 'wholesale' ? 'bg-purple-100' : 'bg-teal-100'}">${o.type}</span></td><td class="p-3 font-semibold">${o.amount}</td><td class="p-3"><span class="px-2 py-1 rounded-full text-xs font-medium ${o.status === 'paid' ? 'bg-green-200' : o.status === 'shipped' ? 'bg-blue-200' : 'bg-yellow-200'}">${o.status}</span></td></tr>`).join('')}</tbody></table></div><div class="mt-6 glass-card p-4"><h3 class="font-bold">➕ Quick order (retail/wholesale)</h3><div class="flex flex-col sm:flex-row gap-3 mt-2"><input placeholder="Search product or SKU" class="flex-1 p-2.5 rounded-xl border"><button class="bg-teal-600 text-white px-6 py-2 rounded-xl">Add to cart</button></div></div></div>`;
+    }
+    
+    function customersPage() {
+      return `<div class="glass-card p-5"><h2 class="text-2xl font-bold text-teal-700"><i class="fas fa-handshake mr-2"></i>Customer portfolio</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5">${customersList.map(c => `<div class="bg-white/70 p-4 rounded-2xl flex justify-between items-center flex-wrap"><div><i class="fas fa-store text-amber-500 mr-2"></i><span class="font-semibold">${c.name}</span><div class="text-xs text-gray-500">${c.segment} · last: ${c.lastOrder}</div></div><div class="text-right"><span class="text-sm font-mono">credit: ${c.credit}</span><span class="ml-2 bg-amber-100 text-amber-700 rounded-full px-2 text-[10px]">${c.segment}</span></div></div>`).join('')}</div><div class="mt-5 text-center text-sm text-teal-600"><i class="fas fa-chart-simple"></i> 12 new wholesale leads this month</div></div>`;
+    }
+    
+    function reportsPage() {
+      return `<div class="glass-card p-5"><h2 class="text-2xl font-bold flex items-center gap-2"><i class="fas fa-chart-column text-amber-600"></i>Sales reports & analytics</h2><div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5"><div class="bg-gradient-to-br from-teal-50 to-amber-50 p-4 rounded-2xl text-center"><i class="fas fa-chart-pie text-4xl text-teal-500"></i><p class="font-bold mt-2">Wholesale 64%</p><div class="h-2 w-full bg-gray-200 rounded-full mt-2"><div class="h-2 w-2/3 bg-teal-500 rounded-full"></div></div><p class="text-xs">vs Retail 36%</p></div><div class="bg-gradient-to-br from-amber-50 to-rose-50 p-4 rounded-2xl"><i class="fas fa-chart-line text-2xl text-amber-500"></i><p class="font-semibold">Monthly projection: +18%</p><p class="text-xs text-gray-600">based on wholesale bulk orders</p></div></div><div class="mt-4 p-3 bg-white/50 rounded-xl text-center text-sm"><i class="fas fa-download mr-1"></i> Export full report (PDF/CSV) coming soon</div></div>`;
+    }
+    
+    function settingsPage() {
+      return `<div class="glass-card p-6"><h2 class="text-2xl font-bold"><i class="fas fa-sliders-h mr-2"></i>Business settings</h2><div class="mt-4 space-y-3"><div class="flex flex-wrap justify-between items-center border-b pb-3"><span>Shop name: Eunice Mart</span><button class="text-amber-600 text-sm">Edit</button></div><div class="flex flex-wrap justify-between"><span>Tax rate (wholesale): 3%</span><button class="text-amber-600">Update</button></div><div class="mt-4"><label class="block text-sm">Notification email</label><input type="email" value="admin@eunice.com" class="w-full p-2 border rounded-xl"></div></div></div>`;
+    }
+    
+    function renderApp() {
+      const root = document.getElementById('app-root');
+      const navHtml = renderTopNav();
+      const content = pageComponents[currentRoute] ? pageComponents[currentRoute]() : '<div class="p-10 text-center">Page not found</div>';
+      root.innerHTML = navHtml + content;
+    }
+    
+    // Expose globally
+    window.navigate = navigate;
+    window.login = login;
+    window.logout = logout;
+    
+    // Initial load: start from sign-in (user null)
+    currentUser = null;
+    renderApp();
+  })();
+</script>
+</body>
+</html>
